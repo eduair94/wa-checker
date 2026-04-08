@@ -27,8 +27,25 @@ import asyncio
 import io
 import os
 import signal
+import subprocess
 import sys
 import time
+
+# ── Auto-install missing dependencies ────────────────────────────────
+def _ensure_dependencies() -> None:
+    """Check that required packages are installed; install them if not."""
+    try:
+        import aiohttp  # noqa: F401
+    except ImportError:
+        print("📦  Installing required packages (first time only)…")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "aiohttp"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        print("    ✅  Done!\n")
+
+_ensure_dependencies()
 
 # Force UTF-8 output on Windows (prevents UnicodeEncodeError with cp1252)
 if sys.stdout.encoding != "utf-8":

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import re
 import sys
-
-import requests
+from urllib.request import urlopen
+from urllib.error import URLError
 
 _DIGIT_RE = re.compile(r"[^\d+]")
 
@@ -54,11 +54,11 @@ def load_numbers(source: str) -> list[str]:
     if source.startswith("http://") or source.startswith("https://"):
         print(f"📥  Downloading number list from URL...")
         try:
-            resp = requests.get(source, timeout=60)
-            resp.raise_for_status()
-            raw_lines = resp.text.splitlines()
+            with urlopen(source, timeout=60) as resp:
+                raw_text = resp.read().decode("utf-8", errors="replace")
+            raw_lines = raw_text.splitlines()
             print(f"    ✅  Downloaded {len(raw_lines)} lines")
-        except requests.RequestException as exc:
+        except (URLError, OSError) as exc:
             print(f"\n❌  Failed to download {source}: {exc}")
             sys.exit(1)
     else:

@@ -1,73 +1,36 @@
 # WhatsApp Number Checker
 
-A **multi-threaded** tool to check a list of phone numbers against the WhatsApp
-API and separate them into **valid** (exists on WhatsApp) and **invalid** files.
+Check a list of phone numbers to see which ones have WhatsApp accounts.
 
-- ⚡ **Concurrent** — multiple worker threads check numbers in parallel
-- ✅ One line per number with full details (name, about, face analysis, etc.)
-- ⏸ **Resume support** — stop and restart anytime, it picks up where it left off
-- 🚦 Smart rate-limiting — respects API limits and backs off on 429 errors
-- 📥 Accepts a local `.txt` file **or** a URL as input
+- ⚡ **Fast** — checks hundreds of numbers per second
+- ⏸ **Resumable** — stop anytime, it picks up where you left off
+- 🧙 **Easy setup** — just run it and answer 3 questions
 
 ---
 
-## 📦 Setup (step by step)
+## � Quick Start (3 steps)
 
-### 1. Install Python
+### Step 1 — Install Python (skip if you already have it)
 
-If you don't have Python yet:
+1. Go to **https://python.org/downloads**
+2. Click the big **"Download Python"** button
+3. Run the installer
+   - ⚠️ **IMPORTANT:** Check the box that says **"Add Python to PATH"** before clicking Install
 
-- **Windows**: Go to https://www.python.org/downloads/ → click **Download Python 3.x**
-  - ⚠️ During install, **check the box** that says **"Add Python to PATH"**
-- **Mac**: `brew install python3` or download from the link above.
-
-To verify, open a terminal and type:
-
+To verify it worked, open a terminal and type:
 ```
 python --version
 ```
+You should see `Python 3.10` or higher.
 
-You should see something like `Python 3.10.x` or higher.
+> **How to open a terminal:**
+> - **Windows:** Press `Win + R`, type `cmd`, press Enter
+> - **Mac:** Press `Cmd + Space`, type `Terminal`, press Enter
 
-### 2. Download this folder
+### Step 2 — Prepare your phone numbers
 
-Copy the entire `wa-checker` folder to your computer. Inside you should see:
-
-```
-wa-checker/
-├── check.py              ← main script you run
-├── config.ini            ← your settings (API key goes here)
-├── requirements.txt      ← Python dependencies
-├── api_client.py
-├── config_loader.py
-├── formatter.py
-├── number_loader.py
-├── progress_tracker.py
-└── README.md             ← this file
-```
-
-### 3. Install dependencies
-
-Open a terminal **inside the `wa-checker` folder** and run:
-
-```
-pip install -r requirements.txt
-```
-
-### 4. Set your API key
-
-Open **`config.ini`** in any text editor (Notepad, VS Code, etc.) and replace
-`YOUR_API_KEY_HERE` with your real API key:
-
-```ini
-[api]
-api_key = abc123-your-real-key-here
-```
-
-### 5. Prepare your phone numbers
-
-Create a file called **`numbers.txt`** in the same folder with one phone number
-per line (international format):
+Create a file called **`numbers.txt`** in the same folder as this tool.
+Put one phone number per line (with country code):
 
 ```
 +96891234567
@@ -75,105 +38,75 @@ per line (international format):
 +14155551234
 ```
 
-Or point to a URL in `config.ini`:
+### Step 3 — Run it!
 
-```ini
-[files]
-input_file = https://example.com/my-numbers.txt
-```
-
----
-
-## 🚀 Running
+Open a terminal **in the folder where you downloaded this tool** and type:
 
 ```
 python check.py
 ```
 
-That's it! You will see a live progress bar:
+**That's it!** On the first run it will:
+1. ✅ Automatically install what it needs
+2. ⚙️ Walk you through a quick 3-question setup (API key, file, speed)
+3. 🚀 Start checking numbers
 
+You'll see a live progress bar:
 ```
-  [██████████░░░░░░░░░░░░░░░░░░░░] 33.2%  332/1000  ✓ +96891234567  (3.8 req/s · ETA 2.9m · 10w)
-```
-
-### CLI options
-
-```
-python check.py                   # normal run (uses config.ini)
-python check.py --reset           # wipe progress and start fresh
-python check.py --config my.ini   # use a different config file
-python check.py --workers 20      # override worker count from CLI
+  [██████████░░░░░░░░░░░░░░░░░░░░] 33.2%  3320/10000  ✓ +96891234567  (42.5 req/s · ETA 2.6m · 200w)
 ```
 
-### Output files
+---
 
-After it finishes (or when you stop it), you'll find:
+## 📂 Where are the results?
 
-| File                  | Content                                                  |
-| --------------------- | -------------------------------------------------------- |
-| `results/valid.txt`   | Numbers on WhatsApp, one per line with full details      |
-| `results/invalid.txt` | Numbers NOT on WhatsApp                                  |
+After it finishes (or when you stop it), you'll find two files:
 
-**Valid line format** (same as the server export):
-
-```
-+96891234567 | name: Ahmed | about: Hello | pic: yes | img: https://whatsapp-db.checkleaked.com/96891234567.jpg | added: 2026-03-15 10:22:00 | face: Young man smiling | tags: person, smile | people: [male/age 20-25]
-```
+| File                  | What's inside                                    |
+| --------------------- | ------------------------------------------------ |
+| `results/valid.txt`   | Numbers that **have** WhatsApp (with details)    |
+| `results/invalid.txt` | Numbers that **don't have** WhatsApp             |
 
 ---
 
 ## ⏸ Stopping and Resuming
 
-- Press **Ctrl+C** once to stop gracefully.
-- Run `python check.py` again and it will **resume** from where it stopped.
-- Progress is saved in `results/.progress.json`.
+- Press **Ctrl+C** to stop. Your progress is saved automatically.
+- Just run `python check.py` again and it continues where it left off.
+- To **start over from scratch**: `python check.py --reset`
 
-To **start completely fresh** (wipe all progress and results):
+---
 
+## ⚙️ Changing Settings
+
+All settings are in **`config.ini`** (created automatically on first run).
+Open it with any text editor (Notepad, VS Code, etc.):
+
+| Setting               | What it does                                            |
+| --------------------- | ------------------------------------------------------- |
+| `api_key`             | Your API key (required)                                 |
+| `input_file`          | Your numbers file or URL (default: `numbers.txt`)       |
+| `requests_per_second` | How fast to check (default: `50`)                       |
+| `workers`             | How many checks run at the same time (default: `200`)   |
+
+**Speed tips:**
+- Start with `50` requests per second
+- If it works fine, try `100` or `200`
+- If you see lots of errors, lower it back down
+
+To override speed without editing the file:
 ```
-python check.py --reset
+python check.py --workers 300
 ```
 
 ---
 
-## ⚙️ Configuration
-
-All settings are in **`config.ini`**:
-
-| Setting               | Default | Description                                     |
-| --------------------- | ------- | ----------------------------------------------- |
-| `api_key`             | —       | **Required.** Your API key.                     |
-| `base_url`            | `https://whatsapp-proxy.checkleaked.cc` | API endpoint       |
-| `requests_per_second`  | `3`     | How fast to check (2–4 recommended)             |
-| `workers`              | `10`    | Concurrent worker threads (see below)           |
-| `max_retries`          | `5`     | Retries per number on errors                    |
-| `backoff_start`        | `2.0`   | Initial wait (seconds) after a 429 error        |
-| `input_file`           | `numbers.txt` | Local file or URL with phone numbers       |
-| `valid_output`         | `results/valid.txt` | Where valid numbers are saved          |
-| `invalid_output`       | `results/invalid.txt` | Where invalid numbers are saved      |
-
-### Tuning `workers`
-
-The rate limiter enforces the global `requests_per_second` cap across all
-threads. Workers just let multiple HTTP requests be **in-flight** at the same
-time so network latency doesn't waste your quota.
-
-Rule of thumb: **workers ≈ requests_per_second × average_latency_seconds**.
-
-| Scenario | `requests_per_second` | `workers` |
-|----------|----------------------|-----------|
-| Default  | 4                    | 10        |
-| Fast API | 4                    | 8         |
-| Slow API (~3 s) | 4             | 15        |
-
----
-
-## ❓ Troubleshooting
+## ❓ Common Problems
 
 | Problem | Solution |
 |---------|----------|
-| `❌ Config file not found` | Make sure `config.ini` exists in the same folder |
-| `❌ API key is missing` | Open `config.ini` and set your real API key |
-| `❌ Input file not found` | Create `numbers.txt` or set the correct path/URL in config |
-| Script is slow | Increase `workers` in config.ini (default 10). The rate limiter still caps total RPS. |
-| `ModuleNotFoundError: requests` | Run `pip install -r requirements.txt` |
+| `python` is not recognized | Re-install Python and check **"Add to PATH"** |
+| Setup wizard asks for API key | Paste the key you received from the API service |
+| `Input file not found` | Make sure `numbers.txt` is in the same folder |
+| Very slow progress | Increase `requests_per_second` in config.ini |
+| Lots of errors/retries | Lower `requests_per_second` — you may be hitting API limits |
