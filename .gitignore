@@ -1,0 +1,9 @@
+# Results and progress (generated at runtime)
+results/
+*.pyc
+__pycache__/
+
+# Don't commit the real config (has API key)
+# Keep config.ini as a template — users fill in their own key
+numbers.txt
+config.ini
